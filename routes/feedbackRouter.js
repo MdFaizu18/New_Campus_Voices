@@ -6,7 +6,7 @@ const router = Router();
 
 router.use(authenticateUser);
 // Apply Routes 
-router.route("/").get(getUserAllFeedback).post(validateFormInput,createFeedback);
+router.route("/").get(getUserAllFeedback).post(createFeedback);
 router.route("/:id").get(getOneFeedback).delete(deleteFeedback);
 
 export default router;

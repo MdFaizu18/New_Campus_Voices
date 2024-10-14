@@ -1,9 +1,9 @@
 import { StatusCodes } from "http-status-codes";
 import User from "../models/userModel.js";
-
 import { hassPassword, comparePassword } from "../utils/passwordUtils.js";
-import { UnauthenticatedError } from "../errors/CustomError.js";
 import { createJWT } from "../utils/tokenUtils.js";
+import * as dotenv from "dotenv";
+dotenv.config();
 
 // ---------------------- for user registration -------------------------------
 export const register = async (req, res) => {
@@ -43,8 +43,9 @@ export const login = async (req, res, next) => {
     
         // to check the user is available and compare the password hasing 
         const isValidUser = user && (await comparePassword(password, user.password));
-        if (!isValidUser) throw new UnauthenticatedError('invalid credentials');
-    
+        if (!isValidUser) {
+            return res.status(400).json({ msg: "Invalid Credentials" });
+        }
         //   for jwt token generation 
         const token = createJWT({ userId: user._id, role: user.role });
         console.log(token);
@@ -52,7 +53,7 @@ export const login = async (req, res, next) => {
         res.cookie("token", token, {
             httpOnly: true,
             expires: new Date(Date.now() + oneWeek),
-            // secure: process.env.NODE_ENV === "production",
+            secure: process.env.NODE_ENV === "production",
         });
         res.status(StatusCodes.CREATED).json({ msg: 'user is logged in' })
     }
@@ -60,6 +61,45 @@ export const login = async (req, res, next) => {
         next(error)
     }
 };
+
+// --------------------------- for admin login ---------------------------------
+export const adminLogin = async (req, res, next) => {
+    try {
+        // Get the user email from the database
+        const user = await User.findOne({ email: req.body.email });
+        const { password, passkey } = req.body;
+
+        // Check if the user exists and validate the password
+        const isValidUser = user && (await comparePassword(password, user.password));
+        if (!isValidUser) {
+            return res.status(400).json({ msg: "Invalid Credentials" });
+        }
+
+        // Check the passkey
+        if (passkey !== process.env.PASS_KEY) {
+            return res.status(400).json({ msg: "Passkey is incorrect" });
+        }
+
+        // Generate a JWT token
+        const token = createJWT({ userId: user._id, role: user.role });
+        const oneWeek = 1000 * 60 * 60 * 24 * 7; // 1 week in milliseconds
+
+        // Set the cookie with the token
+        res.cookie("token", token, {
+            httpOnly: true,
+            expires: new Date(Date.now() + oneWeek),
+            // Uncomment the following line when in production
+            // secure: process.env.NODE_ENV === "production",
+        });
+
+        // Respond with a success message
+        res.status(200).json({ msg: "User is logged in" });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
 
 // -------------------------- for user logout ---------------------------------
 export const logout = (req, res) => {

@@ -134,7 +134,7 @@ export default function RegisterPage() {
             />
             <label
               htmlFor="phoneNumber"
-              className={`absolute left-0 -top-3.5 text-gray-600 text-sm transition-all duration-300 ${focusedField === 'phoneNumber' || formData.phoneNumber
+              className={`absolute left-0 -top-3.5 text-gray-600 text-sm transition-all duration-300 ${focusedField === 'mobileNo' || formData.mobileNo
                 ? '-top-3.5 text-sm text-blue-500'
                 : 'top-2 text-base'
                 }`}

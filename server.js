@@ -1,13 +1,13 @@
 // Importing all necessary packages 
 import express from "express";
 import mongoose from "mongoose";
-import * as dotenv from "dotenv";
 import cors from 'cors';
 import cookieParser from "cookie-parser";
 import morgan from 'morgan';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import path from 'path';
+import * as dotenv from "dotenv";
 dotenv.config();
 
 // Import routers and middlewares

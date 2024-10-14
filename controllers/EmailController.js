@@ -16,7 +16,7 @@ console.log('JWT_SECRET:', process.env.JWT_SECRET ? '[REDACTED]' : 'undefined');
 let transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: "mohammedfaizulla17@gmail.com",
+        user: "campusvoices123@gmail.com",
         pass: process.env.SMTP_PASS,
     },
 });

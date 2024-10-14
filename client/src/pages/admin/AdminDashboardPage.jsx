@@ -2,7 +2,24 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, UserPlus, Star, Users, BarChart2, PieChart, Bell, Settings, Menu, X, ChevronDown, ChevronUp, TrendingUp, TrendingDown, Zap } from 'lucide-react';
 import AdminSidebar from '../../components/res/AdminSidebar';
+import customFetch from '../../utils/CustomFetch';
+import { toast } from 'react-toastify';
+import { redirect } from 'react-router-dom';
 
+export const loader = async () => {
+    try {
+        const data = await customFetch.get('/dashboard-student/current-user');
+        return data;
+    } catch (error) {
+        if (error.response && error.response.status === 403) {
+            toast.error("Please Login !!")
+            return redirect('/login-admin')
+        } else {
+            toast.error("Please Login !!")
+            return redirect('/')
+        }
+    }
+}
 
 
 const StatCard = ({ icon: Icon, label, value, change }) => (

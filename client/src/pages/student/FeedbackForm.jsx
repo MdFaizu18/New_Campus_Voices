@@ -130,25 +130,25 @@ export default function FeedbackForm() {
                         </p>
                         <div className="mt-6 bg-white overflow-hidden shadow rounded-lg">
                             <div className="px-4 py-5 sm:p-6">
-                                <h3 className="text-lg font-medium text-gray-900">How It Works</h3>
+                                <h3 className="text-sm font-medium text-gray-900">How It Works</h3>
                                 <div className="mt-5">
                                     <div className="flex items-center mb-2">
                                         <div className="flex-shrink-0 h-6 w-6 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center justify-center">
                                             <span className="text-white text-sm font-medium">1</span>
                                         </div>
-                                        <p className="ml-3 text-lg text-gray-700">Choose feedback type</p>
+                                        <p className="ml-3 text-sm text-gray-700">Choose feedback type</p>
                                     </div>
                                     <div className="flex items-center mb-2">
                                         <div className="flex-shrink-0 h-6 w-6 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center justify-center">
                                             <span className="text-white text-sm font-medium">2</span>
                                         </div>
-                                        <p className="ml-3 text-lg text-gray-700">Fill in the details</p>
+                                        <p className="ml-3 text-sm text-gray-700">Fill in the details</p>
                                     </div>
                                     <div className="flex items-center">
                                         <div className="flex-shrink-0 h-6 w-6 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center justify-center">
                                             <span className="text-white text-sm font-medium">3</span>
                                         </div>
-                                        <p className="ml-3 text-lg text-gray-700">Submit your feedback</p>
+                                        <p className="ml-3 text-sm text-gray-700">Submit your feedback</p>
                                     </div>
                                 </div>
                             </div>
@@ -211,7 +211,7 @@ export default function FeedbackForm() {
                                                             onChange={(e) => setUserName(e.target.value)}
                                                             required
                                                             readOnly
-                                                            className="focus:ring-indigo-500 px-2 py-2 focus:border-indigo-500 block w-full pl-10 sm:text-lg border rounded-md"
+                                                            className="focus:ring-indigo-500 px-2 py-2 focus:border-indigo-500 block w-full pl-10 sm:text-sm border rounded-md"
                                                             placeholder="Enter your name"
                                                         />
                                                         <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
@@ -229,7 +229,7 @@ export default function FeedbackForm() {
                                                             onChange={(e) => setUserDep(e.target.value)}
                                                             required
                                                             readOnly
-                                                            className="focus:ring-indigo-500 px-2 py-2 focus:border-indigo-500 block w-full pl-10 sm:text-lg border rounded-md"
+                                                            className="focus:ring-indigo-500 px-2 py-2 focus:border-indigo-500 block w-full pl-10 sm:text-sm border rounded-md"
                                                             placeholder="Enter your department"
                                                         />
                                                         <BookOpen className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
@@ -245,7 +245,7 @@ export default function FeedbackForm() {
                                                             value={year}
                                                             onChange={(e) => setYear(e.target.value)}
                                                             required
-                                                            className="focus:ring-indigo-500 px-2 py-2 focus:border-indigo-500 block w-full pl-10 sm:text-lg border rounded-md"
+                                                            className="focus:ring-indigo-500 px-2 py-2 focus:border-indigo-500 block w-full pl-10 sm:text-sm border rounded-md"
                                                         >
                                                             <option value="">Select year</option>
                                                             {yearOptions.map((option) => (
@@ -310,7 +310,7 @@ export default function FeedbackForm() {
                                                 onChange={(e) => setMessage(e.target.value)}
                                                 required
                                                 rows={4}
-                                                className="focus:ring-indigo-500 px-2 py-2 focus:border-indigo-500 block w-full pl-10 sm:text-lg border rounded-md"
+                                                className="focus:ring-indigo-500 px-2 py-2 focus:border-indigo-500 block w-full pl-10 sm:text-sm border rounded-md"
                                                 placeholder="Enter your feedback here..."
                                             />
                                             <Send className="absolute left-3 top-3 h-5 w-5 text-gray-400" />

@@ -1,67 +1,119 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import AdminSidebar from '../../components/res/AdminSidebar';
-import { PlusCircle, Edit2, Trash2, Save, X, Menu, Bell, LogOut } from 'lucide-react'
+import { PlusCircle, Edit2, Trash2, Save, X, Menu, Bell } from 'lucide-react';
+import customFetch from '../../utils/CustomFetch';
+import { toast } from 'react-toastify';
 
 export default function AdminFeatureManagement() {
-  const [features, setFeatures] = useState([])
-  const [newFeature, setNewFeature] = useState({ title: '', description: '', emoji: '' })
-  const [editingId, setEditingId] = useState(null)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [features, setFeatures] = useState([]);
+  const [newFeature, setNewFeature] = useState({ id: '', title: '', description: '', emoji: '' });
+  const [editingId, setEditingId] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const handleAddFeature = () => {
+  // Fetch features on component mount
+  useEffect(() => {
+    const fetchFeatures = async () => {
+      try {
+        const response = await customFetch.get('/dashboard-admin/feature');
+        setFeatures(response.data); // Adjust based on your API structure
+      } catch (error) {
+        console.error('Failed to fetch features', error);
+        toast.error('Failed to load features.');
+      }
+    };
+    fetchFeatures();
+  }, []);
+
+  const handleAddFeature = async () => {
     if (features.length >= 3) {
-      alert("Maximum of 3 features allowed")
-      return
+      toast.error('You have reached the maximum limit of 3 features.');
+      return;
     }
+
     if (!newFeature.title || !newFeature.description || !newFeature.emoji) {
-      alert("Please fill in all fields")
-      return
+      toast.error('Please fill in all fields.');
+      return;
     }
-    setFeatures([...features, { ...newFeature, id: Date.now() }])
-    setNewFeature({ title: '', description: '', emoji: '' })
-  }
+
+    try {
+      const formData = {
+        title: newFeature.title,
+        description: newFeature.description,
+        emoji: newFeature.emoji,
+      };
+
+      const response = await customFetch.post('/dashboard-admin/feature', formData);
+      toast.success('Feature added successfully!');
+      setFeatures([...features, { ...formData, _id: response.data.id }]);
+
+      setNewFeature({ id: '', title: '', description: '', emoji: '' });
+    } catch (error) {
+      console.error('Error adding feature:', error);
+      toast.error('An error occurred while adding the feature. Please try again.');
+    }
+  };
 
   const handleEditFeature = (id) => {
-    const featureToEdit = features.find(f => f.id === id)
+    const featureToEdit = features.find((f) => f._id === id); // Adjust this line to match your data structure
     if (featureToEdit) {
-      setNewFeature(featureToEdit)
-      setEditingId(id)
+      setNewFeature(featureToEdit);
+      setEditingId(featureToEdit._id); // Ensure you're setting the editingId correctly
     }
-  }
+  };
 
-  const handleUpdateFeature = () => {
+  const handleUpdateFeature = async () => {
     if (!newFeature.title || !newFeature.description || !newFeature.emoji) {
-      alert("Please fill in all fields")
-      return
+      toast.error('Please fill in all fields.');
+      return;
     }
-    setFeatures(features.map(f => f.id === editingId ? { ...newFeature, id: f.id } : f))
-    setNewFeature({ title: '', description: '', emoji: '' })
-    setEditingId(null)
-  }
 
-  const handleDeleteFeature = (id) => {
-    setFeatures(features.filter(f => f.id !== id))
-  }
+    try {
+      const formData = {
+        title: newFeature.title,
+        description: newFeature.description,
+        emoji: newFeature.emoji,
+      };
+
+      await customFetch.patch(`/dashboard-admin/feature/${newFeature._id}`, formData);
+      toast.success('Feature updated successfully!');
+
+      setFeatures(features.map((f) => (f._id === newFeature._id ? { ...newFeature } : f))); // Use _id here
+
+      setNewFeature({ id: '', title: '', description: '', emoji: '' });
+      setEditingId(null);
+    } catch (error) {
+      console.error('Error updating feature:', error);
+      toast.error('An error occurred while updating the feature. Please try again.');
+    }
+  };
+
+  const handleDeleteFeature = async (id) => {
+    try {
+      await customFetch.delete(`/dashboard-admin/feature/${id}`);
+      toast.success('Feature deleted successfully!');
+      setFeatures(features.filter((f) => f._id !== id)); // Use _id here
+    } catch (error) {
+      console.error('Error deleting feature:', error);
+      toast.error('An error occurred while deleting the feature. Please try again.');
+    }
+  };
 
   const handleCancelEdit = () => {
-    setNewFeature({ title: '', description: '', emoji: '' })
-    setEditingId(null)
-  }
+    setNewFeature({ id: '', title: '', description: '', emoji: '' });
+    setEditingId(null);
+  };
 
   return (
     <div className="flex h-screen bg-gray-100">
-      {/* Sidebar */}
-     <AdminSidebar/>
+      <AdminSidebar />
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top Navigation */}
         <header className="bg-white shadow-sm z-10">
           <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
             <div className="flex items-center">
               <button
                 className="mr-4 md:hidden"
-                onClick={() => setSidebarOpen(!sidebarOpen)}
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
               >
                 <Menu className="h-6 w-6" />
               </button>
@@ -82,16 +134,11 @@ export default function AdminFeatureManagement() {
           </div>
         </header>
 
-        
-
-        {/* Main Content Area */}
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
-          <div className="container mx-auto px-6 py-8 ">
-
-            {/* Feature Cards */}
+          <div className="container mx-auto px-6 py-8">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-5">
               {features.map((feature) => (
-                <div key={feature.id} className="bg-[#FBF5FF] rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg">
+                <div key={feature._id} className="bg-[#FBF5FF] rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg">
                   <div className="p-6">
                     <div className="flex justify-between items-center mb-4">
                       <h4 className="text-xl font-semibold text-gray-800">{feature.title}</h4>
@@ -99,10 +146,10 @@ export default function AdminFeatureManagement() {
                     </div>
                     <p className="text-gray-600 mb-4">{feature.description}</p>
                     <div className="flex justify-end space-x-2">
-                      <button onClick={() => handleEditFeature(feature.id)} className="p-2 text-indigo-600 hover:bg-indigo-100 rounded-full transition-colors">
+                      <button onClick={() => handleEditFeature(feature._id)} className="p-2 text-indigo-600 hover:bg-indigo-100 rounded-full transition-colors">
                         <Edit2 size={18} />
                       </button>
-                      <button onClick={() => handleDeleteFeature(feature.id)} className="p-2 text-red-600 hover:bg-red-100 rounded-full transition-colors">
+                      <button onClick={() => handleDeleteFeature(feature._id)} className="p-2 text-red-600 hover:bg-red-100 rounded-full transition-colors">
                         <Trash2 size={18} />
                       </button>
                     </div>
@@ -111,9 +158,6 @@ export default function AdminFeatureManagement() {
               ))}
             </div>
 
-
-
-            {/* Feature Form */}
             <div className="bg-white rounded-lg shadow-md p-6 mb-8">
               <h3 className="text-lg font-semibold text-gray-700 mb-4">
                 {editingId !== null ? 'Edit Feature' : 'Add New Feature'}
@@ -135,52 +179,36 @@ export default function AdminFeatureManagement() {
                 />
                 <input
                   type="text"
-                  placeholder="Emoji"
+                  placeholder="Emoji (e.g. 🚀) Press 'Windows key + period (.) '"
                   value={newFeature.emoji}
                   onChange={(e) => setNewFeature({ ...newFeature, emoji: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
-              <div className="mt-6 flex justify-end space-x-3">
-                {editingId !== null && (
-                  <button onClick={handleCancelEdit} className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    <X className="inline-block mr-2" size={18} />
-                    Cancel
+              <div className="flex justify-end space-x-2 mt-4">
+                {editingId ? (
+                  <>
+                    <button onClick={handleUpdateFeature} className="flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition">
+                      <Save className="mr-2" /> Save
+                    </button>
+                    <button onClick={handleCancelEdit} className="flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">
+                      <X className="mr-2" /> Cancel
+                    </button>
+                  </>
+                ) : (
+                  <button onClick={handleAddFeature} className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+                    <PlusCircle className="mr-2" /> Add Feature
                   </button>
                 )}
-                <button
-                  onClick={editingId !== null ? handleUpdateFeature : handleAddFeature}
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                >
-                  {editingId !== null ? (
-                    <>
-                      <Save className="inline-block mr-2" size={18} />
-                      Update Feature
-                    </>
-                  ) : (
-                    <>
-                      <PlusCircle className="inline-block mr-2" size={18} />
-                      Add Feature
-                    </>
-                  )}
-                </button>
               </div>
-            </div>
-
-           
-
-            {/* Quick Tips */}
-            <div className="mt-12 bg-indigo-100 rounded-lg p-6 shadow-inner">
-              <h3 className="text-lg font-semibold text-indigo-800 mb-4">Quick Tips</h3>
-              <ul className="list-disc list-inside text-indigo-700 space-y-2">
-                <li>You can add up to 3 features</li>
-                <li>Use emojis to make your features stand out</li>
-                <li>Keep descriptions concise and informative</li>
-              </ul>
             </div>
           </div>
         </main>
       </div>
     </div>
-  )
+  );
 }
+
+
+
+

@@ -28,6 +28,7 @@ export default function MainDashboardStudent() {
     const data = useLoaderData();
 
     const [rating, setRating] = useState(0);
+    const [features, setFeatures] = useState([]);
     const [isDisabled, setIsDisabled] = useState(false);
     const [showMoreFeedback, setShowMoreFeedback] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
@@ -59,6 +60,21 @@ export default function MainDashboardStudent() {
             }
         }
     }, [userId]);
+
+    // Fetch current user details on component mount
+    useEffect(() => {
+        const fetchCurrentUser = async () => {
+            try {
+                const response = await customFetch.get("/dashboard-admin/feature");
+                // Assuming the response contains an array of features
+                setFeatures(response.data); // Adjust 'response.data' based on your API structure
+            } catch (error) {
+                console.error("Failed to fetch user data", error);
+                toast.error("Failed to load features.");
+            }
+        };
+        fetchCurrentUser();
+    }, []);
 
     const handleSubmit = async () => {
         if (!rating) {
@@ -288,28 +304,37 @@ export default function MainDashboardStudent() {
                     transition={{ duration: 0.1, delay: 0.9 }}
                     className="mb-16"
                 >
-                    <h2 className="text-3xl font-bold text-indigo-900 mb-8 text-center">Recent Campus Improvements</h2>
+                    <div className="text-3xl font-bold text-indigo-900 mb-8 text-center">Recent Campus Improvements</div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {[
-                            { title: "New Study Spaces", description: "Additional quiet areas added to the library", icon: "📚", color: "from-blue-400 to-cyan-300" },
-                            { title: "Cafeteria Menu Update", description: "More vegetarian and vegan options now available", icon: "🥗", color: "from-green-400 to-emerald-300" },
-                            { title: "Wi-Fi Upgrade", description: "Faster internet speeds across campus", icon: "📡", color: "from-purple-400 to-pink-300" },
-                        ].map((item, index) => (
-                            <motion.div
-                                key={index}
-                                className={`bg-gradient-to-br ${item.color} rounded-lg p-6 shadow-lg transform hover:-translate-y-2 transition-all duration-300`}
-                                whileHover={{ scale: 1.05 }}
-                                initial={{ opacity: 0, y: 50 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.2, duration: 0.5 }}
-                            >
-                                <div className="text-4xl mb-4">{item.icon}</div>
-                                <h3 className="text-xl font-semibold mb-2 text-gray-800">{item.title}</h3>
-                                <p className="text-gray-700">{item.description}</p>
-                            </motion.div>
-                        ))}
+                        {features.map((feature, index) => {
+                            // Define gradient colors
+                            const colors = [
+                                "from-blue-400 to-cyan-300",
+                                "from-green-400 to-emerald-300",
+                                "from-purple-400 to-pink-300"
+                            ];
+
+                            // Select a color based on the index to cycle through colors
+                            const color = colors[index % colors.length];
+
+                            return (
+                                <motion.div
+                                    key={index}
+                                    className={`bg-gradient-to-br ${color} rounded-lg p-6 shadow-lg transform hover:-translate-y-2 transition-all duration-300`}
+                                    whileHover={{ scale: 1.05 }}
+                                    initial={{ opacity: 0, y: 50 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: index * 0.2, duration: 0.5 }}
+                                >
+                                    <div className="text-4xl mb-4">{feature.emoji}</div>
+                                    <h3 className="text-xl font-semibold mb-2 text-gray-800">{feature.title}</h3>
+                                    <p className="text-gray-700">{feature.description}</p>
+                                </motion.div>
+                            );
+                        })}
                     </div>
                 </motion.section>
+
             </main>
 
             {/* Footer */}

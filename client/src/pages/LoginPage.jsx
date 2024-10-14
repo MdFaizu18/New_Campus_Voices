@@ -156,33 +156,38 @@ export default function LoginPage() {
   );
 }
 
-
 // action for submitting form 
 export const action = async ({ request }) => {
   const formData = await request.formData();
   const data = Object.fromEntries(formData);
   const userEmail = data.email;
-  const errors = { msg: "" };
-  if (data.password.length < 3) {
-    errors.msg = "Password is too short";
-    return errors;
-  }
+
   try {
-    const userDetails = await customFetch.get(
-      `/users/dashboard-admin/${userEmail}`
-    );
+    // Fetch user details
+    const userDetails = await customFetch.get(`/users/dashboard-admin/${userEmail}`);
     const userRole = userDetails.data?.user?.role;
 
+    // Attempt to log in
     await customFetch.post("/auth/login", data);
+
+    // Set cookie for 7 days
     const expireDate = new Date();
-    expireDate.setDate(expireDate.getDate() + 7); // Set expiration for 7 days from now
+    expireDate.setDate(expireDate.getDate() + 7);
     Cookies.set('tokens', userEmail, { path: '/', expires: expireDate });
+
+    // Verify if the cookie was set
+    if (!Cookies.get('tokens')) {
+      toast.error("This site requires cookies to function properly. Please enable cookies in your browser settings.");
+      return errors;
+    }
+
+    // Show success and redirect based on user role
     toast.success("Login Successful");
     return redirect(
-      userRole === "admin" ? "/dashboard-admin" : "/student-dashboard"
+      userRole === "admin" ? "/admin-dashboard" : "/student-dashboard"
     );
   } catch (error) {
-    toast.error(error?.response?.data?.msg);
-    return errors;
+    toast.error(error?.response?.data?.msg || "An error occurred. Please try again.");
+    return error;
   }
 };
