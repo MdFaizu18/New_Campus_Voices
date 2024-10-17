@@ -30,16 +30,15 @@ export default function EnhancedAddStaffPage() {
     useEffect(() => {
         const fetchFeedbacks = async () => {
             try {
-                const { data } = await customFetch.get(`/dashboard-head/staff/${id}`);
-                setFirstName(data.staff.firstName);
-                setLastName(data.staff.lastName);
-                setDepartment(data.staff.department);
-                setStaffCode(data.staff.staffCode);
-                setExperience(data.staff.experience);
-                setPhoneNumber(data.staff.phoneNumber);
-                setEmail(data.staff.email);
-                setDepartmentCode(data.staff.departmentCode);
-                setJobPosition(data.staff.jobPosition);
+                const data = await customFetch.get(`/dashboard-head/staff/${ id }`);
+                setFirstName(data.data.staff.firstName) // Set the fetched feedbacks
+                setSecondName(data.data.staff.secondName) // Set the fetched feedbacks
+                setDepartment(data.data.staff.department) // Set the fetched feedbacks
+                setStaffCode(data.data.staff.staffCode) // Set the fetched feedbacks
+                setFirstName(data.data.staff.firstName) // Set the fetched feedbacks
+                setFirstName(data.data.staff.firstName) // Set the fetched feedbacks
+                setFirstName(data.data.staff.firstName) // Set the fetched feedbacks
+                setFirstName(data.data.staff.firstName) // Set the fetched feedbacks
             } catch (error) {
                 if (error.response && error.response.status === 403) {
                     toast.error("Please Login !!");
@@ -48,12 +47,11 @@ export default function EnhancedAddStaffPage() {
                     toast.error("An error occurred. Please try again.");
                     navigate('/'); // Redirect to home
                 }
-            } 
+            }
         };
 
-        if (id) fetchFeedbacks(); // Only fetch if 'id' exists
-    }, [id, navigate]);
-
+        fetchFeedbacks(); // Call the fetch function
+    }, [navigate]); // Dependency array includes navigat
 
     console.log(firstName);
 

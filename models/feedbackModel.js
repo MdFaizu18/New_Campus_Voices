@@ -9,13 +9,14 @@ const FeedbackSchema = new mongoose.Schema(
         year: {
             type: String,
         },
-        messageType:String,
+        messageType: String,
         category: {
             type: String,
-            enum: ['Academics', 'Facilities','Campus Life','Personal'],
+            enum: ['Academics', 'Facilities', 'Campus Life', 'Personal'],
             default: 'Academics',
         },
         message: String,
+        image: String,
         createdBy: {
             type: mongoose.Types.ObjectId,
             ref: 'user',

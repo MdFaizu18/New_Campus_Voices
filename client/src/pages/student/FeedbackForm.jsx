@@ -6,6 +6,7 @@ import BannerImg from '../../assets/images/FeedbackBanner1.jpg';
 import customFetch from '../../utils/CustomFetch';
 import { toast } from 'react-toastify'; // Assuming you're using react-toastify for notifications
 
+
 // Feedback categories
 const categories = [
     { name: 'Academics', icon: BookOpen },
@@ -20,9 +21,10 @@ export default function FeedbackForm() {
     const [userDep, setUserDep] = useState(''); // Store user's department
     const [year, setYear] = useState(''); // Store user's year of study
     const [category, setCategory] = useState(''); // Feedback category
+    const [profileImg, setProfileImg] = useState(''); // Feedback category
     const [message, setMessage] = useState(''); // Feedback message
     const userId = '1234'; // Replace with actual userId from your app logic
-    
+
 
     useEffect(() => {
         // Set the default category to the first item in the categories array
@@ -39,13 +41,16 @@ export default function FeedbackForm() {
                 const response = await customFetch.get("/dashboard-student/current-user");
                 setUserName(response.data.user.name);
                 setUserDep(response.data.user.department);
+                setProfileImg(response.data.user.profileImage);
             } catch (error) {
                 console.error("Failed to fetch user data", error);
             }
         };
         fetchCurrentUser();
     }, []);
-  
+
+
+
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -53,8 +58,8 @@ export default function FeedbackForm() {
         try {
             const response = await customFetch.get("/dashboard-student/current-user");
             const today = new Date().toISOString().split('T')[0]; // Get today's date in format 'YYYY-MM-DD'
-            const feedbackCountKey = `feedbackCount_${response.data.user._id}`; // Key for tracking daily feedback count
-            const lastSubmissionDateKey = `lastSubmissionDate_${response.data.user._id}`;
+            const feedbackCountKey = `feedbackCount_${ response.data.user._id }`; // Key for tracking daily feedback count
+            const lastSubmissionDateKey = `lastSubmissionDate_${ response.data.user._id }`;
 
             let feedbackCountToday = parseInt(localStorage.getItem(feedbackCountKey)) || 0;
             const lastSubmissionDate = localStorage.getItem(lastSubmissionDateKey);
@@ -79,6 +84,7 @@ export default function FeedbackForm() {
             formData.append("messageType", isPersonal ? 'secret' : 'normal');
             formData.append("category", category);
             formData.append("message", message);
+            formData.append("image", profileImg);
             const data = Object.fromEntries(formData);
 
             // Submit feedback via customFetch
@@ -95,7 +101,7 @@ export default function FeedbackForm() {
             toast.error(error?.response?.data?.msg || "Failed to submit feedback");
         }
     };
-  
+
     const yearOptions = ['I', 'II', 'III', 'IV']; // Year options
 
     return (
@@ -154,7 +160,7 @@ export default function FeedbackForm() {
                             </div>
                         </div>
                     </div>
-                    
+
 
                     {/* Right Section - Feedback Form */}
                     <div className="mt-12 lg:mt-0 lg:col-span-7">
@@ -188,7 +194,7 @@ export default function FeedbackForm() {
                                         Secret Feedback
                                     </motion.button>
                                 </div>
-                            
+
                                 {/* Feedback Form */}
                                 <form onSubmit={handleSubmit} className="space-y-4">
                                     <AnimatePresence>
@@ -260,20 +266,20 @@ export default function FeedbackForm() {
                                             </motion.div>
                                         )}
                                     </AnimatePresence>
-                                   
+
                                     {/* Hidden Fields for isPersonal */}
                                     {isPersonal && (
                                         <>
-                                            <input type="text" name="name" defaultValue={userName}  hidden />
+                                            <input type="text" name="name" defaultValue={userName} hidden />
                                             <input type="text" name="department" defaultValue={userDep} hidden />
-                                            <input type="text" name="year" defaultValue="I" hidden/>
-                                            <input type="text" name="messageType" defaultValue="secret"  hidden/>
-                                          
+                                            <input type="text" name="year" defaultValue="I" hidden />
+                                            <input type="text" name="messageType" defaultValue="secret" hidden />
+
                                         </>
-                                        
+
                                     )}
-                                    
-                                   
+
+
                                     <div className="mb-4">
                                         <label className="block text-sm font-medium text-gray-700">
                                             Category

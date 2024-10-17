@@ -1,10 +1,46 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MessageCircle, Lock, Search, Filter, SortAsc, SortDesc, Zap, Calendar, ChevronDown, X, ChevronLeft, ChevronRight, Bell, Menu } from 'lucide-react'
+import { Search, SortAsc, SortDesc, Calendar, ChevronDown, X, ChevronLeft, ChevronRight, Bell, Menu } from 'lucide-react'
 import AdminSidebar from '../../components/res/AdminSidebar'
 import customFetch from '../../utils/CustomFetch'
 import { toast } from 'react-toastify'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
+
+
+const ImagePreviewModal = ({ isOpen, onClose, imageSrc, name }) => {
+    if (!isOpen) return null;
+
+    return (
+        <AnimatePresence>
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center"
+                onClick={onClose}
+            >
+                <motion.div
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.8, opacity: 0 }}
+                    className="bg-white p-4 rounded-lg shadow-xl max-w-2xl max-h-[80vh] overflow-hidden"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-xl font-semibold">{name}'s Profile Picture</h3>
+                        <button
+                            onClick={onClose}
+                            className="text-gray-500 hover:text-gray-700 transition-colors"
+                        >
+                            <X size={24} />
+                        </button>
+                    </div>
+                    <img src={imageSrc} alt={name} className="w-full h-auto rounded-lg" />
+                </motion.div>
+            </motion.div>
+        </AnimatePresence>
+    );
+};
 
 const getYearLabel = (year) => {
     switch (year) {
@@ -22,47 +58,72 @@ const getYearLabel = (year) => {
 };
 
 const FeedbackCard = ({ feedback, isPersonalView }) => {
+    const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+
+    const openImageModal = () => setIsImageModalOpen(true);
+    const closeImageModal = () => setIsImageModalOpen(false);
+
     return (
-        <div className="bg-white rounded-lg shadow-md overflow-hidden mb-4">
-            <div className={`h-2 ${feedback.messageType === 'secret' ? 'bg-gradient-to-r from-purple-500 to-pink-500' : 'bg-gradient-to-r from-blue-500 to-cyan-500'}`}></div>
-            <div className="px-8 py-5">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                        {!isPersonalView && feedback.messageType !== 'secret' && (
-                            <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold">
-                                {feedback.name.split(' ').map(n => n[0]).join('')}
-                            </div>
-                        )}
-                        <div>
-                            {/* Conditionally render name */}
+        <>
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="bg-white rounded-lg shadow-md overflow-hidden mb-4"
+            >
+                <div className={`h-2 ${feedback.messageType === 'secret' ? 'bg-gradient-to-r from-purple-500 to-pink-500' : 'bg-gradient-to-r from-blue-500 to-cyan-500'}`}></div>
+                <div className="px-8 py-5">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
                             {!isPersonalView && feedback.messageType !== 'secret' && (
-                                <h3 className="text-lg font-semibold">{feedback.name}</h3>
+                                <motion.div
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold overflow-hidden cursor-pointer"
+                                    onClick={feedback.image ? openImageModal : undefined}
+                                >
+                                    {feedback.image ? (
+                                        <img src={feedback.image} alt={feedback.name} className="w-full h-full object-cover rounded-full" />
+                                    ) : (
+                                        feedback.name.split(' ').map(n => n[0]).join('')
+                                    )}
+                                </motion.div>
                             )}
-                            <p className="text-sm text-gray-500">
-                                {new Date(feedback.createdAt).toLocaleDateString('en-GB')} &nbsp;
-                                {new Date(feedback.createdAt).toLocaleTimeString([], { hour: 'numeric', minute: 'numeric', hour12: true })}
-                            </p>
+                            <div>
+                                {!isPersonalView && feedback.messageType !== 'secret' && (
+                                    <h3 className="text-lg font-semibold">{feedback.name}</h3>
+                                )}
+                                <p className="text-sm text-gray-500">
+                                    {new Date(feedback.createdAt).toLocaleDateString('en-GB')} &nbsp;
+                                    {new Date(feedback.createdAt).toLocaleTimeString([], { hour: 'numeric', minute: 'numeric', hour12: true })}
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <span className="px-2 py-1 text-xs font-semibold rounded-full bg-gray-200 text-gray-800">{feedback.category}</span>
+                            <span className="px-2 py-1 text-xs font-semibold rounded-full border border-gray-300">{feedback.department}</span>
+                            {!isPersonalView && feedback.messageType === 'normal' && (
+                                <span className="px-2 py-1 text-xs font-semibold rounded-full border border-gray-300">
+                                    {getYearLabel(feedback.year)}
+                                </span>
+                            )}
+                            {!isPersonalView && feedback.messageType === 'secret' && (
+                                <span className="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-black-800">Personal</span>
+                            )}
                         </div>
                     </div>
-                    <div className="flex items-center space-x-2">
-                     
-                        <span className="px-2 py-1 text-xs font-semibold rounded-full bg-gray-200 text-gray-800">{feedback.category}</span>
-                        <span className="px-2 py-1 text-xs font-semibold rounded-full border border-gray-300">{feedback.department}</span>
-                        {!isPersonalView && feedback.messageType == 'normal' && (
-                        <span className="px-2 py-1 text-xs font-semibold rounded-full border border-gray-300">
-                            {getYearLabel(feedback.year)}
-                        </span>
-                        )}
-                        {!isPersonalView && feedback.messageType == 'secret' && (
-                            <span className="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-black-800">Personal</span>
-                        )}
-                       </div>
+                    <div className="mt-4">
+                        <p>{feedback.message}</p>
+                    </div>
                 </div>
-                <div className="mt-4">
-                    <p>{feedback.message}</p>
-                </div>
-            </div>
-        </div>
+            </motion.div>
+            <ImagePreviewModal
+                isOpen={isImageModalOpen}
+                onClose={closeImageModal}
+                imageSrc={feedback.image}
+                name={feedback.name}
+            />
+        </>
     );
 };
 
@@ -177,7 +238,7 @@ export default function EnhancedFeedbackReview() {
     }, [activeTab, feedbacks]);
 
 
-    
+
 
 
     const handleDateSelect = (date) => {
@@ -229,7 +290,7 @@ export default function EnhancedFeedbackReview() {
                                         />
                                         <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                                     </div>
-                                    
+
                                     <div className="relative flex-grow">
                                         <select
                                             value={filterDepartment}
@@ -276,7 +337,7 @@ export default function EnhancedFeedbackReview() {
                                     </button>
                                 </div>
                                 {/* <div className="flex items-center space-x-2">
-                                    <span className={`font-medium ${isPersonalView ? 'text-purple-600' : 'text-gray-600'}`}>
+                                    <span className={font-medium ${isPersonalView ? 'text-purple-600' : 'text-gray-600'}}>
                                         Personal View
                                     </span>
                                     <button
@@ -295,7 +356,7 @@ export default function EnhancedFeedbackReview() {
                             {/* Tabs */}
                             <div className="mb-6">
                                 <div className="flex space-x-1">
-                                    {[ 'normal', 'personal'].map((tab) => (
+                                    {['normal', 'personal'].map((tab) => (
                                         <button
                                             key={tab}
                                             onClick={() => setActiveTab(tab)}
@@ -348,6 +409,6 @@ export default function EnhancedFeedbackReview() {
                     </div>
                 </div>
             )}
-        </div>
-    )
+        </div>
+    )
 }
