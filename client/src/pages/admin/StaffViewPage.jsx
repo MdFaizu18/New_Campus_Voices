@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
     Search,
     ChevronDown,
@@ -18,20 +18,44 @@ import {
 } from "@/components/ui/table"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import customFetch from '../../utils/CustomFetch'
+import { toast } from 'react-toastify'
+import { useNavigate } from 'react-router-dom'
 
-// Mock data for staff members
-const staffMembers = [
-    { id: 1, name: "John Doe", department: "Computer Science", position: "Professor", email: "john.doe@example.com" },
-    { id: 2, name: "Jane Smith", department: "Physics", position: "Associate Professor", email: "jane.smith@example.com" },
-    { id: 3, name: "Bob Johnson", department: "Mathematics", position: "Assistant Professor", email: "bob.johnson@example.com" },
-    { id: 4, name: "Alice Brown", department: "Chemistry", position: "Lecturer", email: "alice.brown@example.com" },
-    { id: 5, name: "Charlie Davis", department: "Biology", position: "Professor", email: "charlie.davis@example.com" },
-]
 
 export default function StaffViewPage() {
     const [searchTerm, setSearchTerm] = useState('')
+    const [staffs, setStaffs] = useState([]);
     const [sortColumn, setSortColumn] = useState('name')
     const [sortDirection, setSortDirection] = useState('asc')
+    const [loading, setLoading] = useState(true); // Loading state
+    const navigate = useNavigate(); // Initialize useNavigate for redirection
+
+
+    useEffect(() => {
+        const fetchFeedbacks = async () => {
+            try {
+                const data = await customFetch.get('/dashboard-head/staff');
+                setStaffs(data.data.feeds); // Set the fetched feedbacks
+            } catch (error) {
+                if (error.response && error.response.status === 403) {
+                    toast.error("Please Login !!");
+                    navigate('/login-admin'); // Redirect to login-admin
+                } else {
+                    toast.error("An error occurred. Please try again.");
+                    navigate('/'); // Redirect to home
+                }
+            } finally {
+                setLoading(false); // Set loading to false once fetching is complete
+            }
+        };
+
+        fetchFeedbacks(); // Call the fetch function
+    }, [navigate]); // Dependency array includes navigate
+
+    console.log(staffs);
+
+
 
     const handleSort = (column) => {
         if (column === sortColumn) {
@@ -57,7 +81,7 @@ export default function StaffViewPage() {
 
     return (
         <div className="flex h-screen bg-gray-100">
-        <AdminSibebar/>
+            <AdminSibebar />
             {/* Sidebar component would go here */}
             <div className="flex-1 flex flex-col overflow-hidden">
                 {/* Header */}

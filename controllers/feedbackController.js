@@ -84,58 +84,88 @@ export const getAdminPersonalFeedback = async (req, res) => {
     }
 };
 
+
 // to get all the feedbacks 
 export const getUserAllFeedback = async (req, res) => {
     if (!req.user) {
         return res.status(403).json({ message: 'Access denied. Admins only.' });
     }
     const { page, limit } = req.query;
-    const queryObject = { createdBy: req.user.userId };
-
     const pageNumber = Number(page) || 1;
     const itemsPerPage = Number(limit) || 10;
     const skip = (pageNumber - 1) * itemsPerPage;
 
     try {
+        // Determine the department filter based on user role
+        let departmentFilter = {};
+        if (req.user.role === 'cseAdmin') {
+            departmentFilter.department = 'CSE';
+        } else if (req.user.role === 'eceAdmin') {
+            departmentFilter.department = 'ECE';
+        } else if (req.user.role === 'mechAdmin') {
+            departmentFilter.department = 'MECH';
+        } else if (req.user.role === 'eeeAdmin') {
+            departmentFilter.department = 'EEE';
+        } else if (req.user.role === 'aimlAdmin') {
+            departmentFilter.department = 'AIML';
+        } else if (req.user.role === 'itAdmin') {
+            departmentFilter.department = 'IT';
+        }
+
+        console.log('User Role:', req.user.role);
+        console.log('Applied Department Filter:', departmentFilter);
+
+        // Fetch feedbacks by department only, without limiting to userId
+        const combinedQueryObject = { ...departmentFilter };
+        console.log('Combined Query Object:', combinedQueryObject);
+
         // Fetch normal feedbacks
-        const normalFeedbacks = await feedbackModel.find({ ...queryObject, messageType: 'normal' });
+        const normalFeedbacks = await feedbackModel.find({ ...combinedQueryObject, messageType: 'normal' });
         const normalFeedbacksCount = normalFeedbacks.length;
 
         // Fetch personal feedbacks
-        const personalFeedbacks = await feedbackModel.find({ ...queryObject, messageType: 'secret' });
+        const personalFeedbacks = await feedbackModel.find({ ...combinedQueryObject, messageType: 'secret' });
         const personalFeedbacksCount = personalFeedbacks.length;
 
         // Separating by category
-        const AcademicsFeedbacks = await feedbackModel.find({...queryObject,category:'Academics'});
-        const FacilitiesFeedbacks = await feedbackModel.find({...queryObject,category:'Facilities'});
-        const CampusLifeFeedbacks = await feedbackModel.find({...queryObject,category:'Campus Life'});
-        const PersonalFeedbacks = await feedbackModel.find({...queryObject,category:'Personal'});
+        const AcademicsFeedbacks = await feedbackModel.find({ ...combinedQueryObject, category: 'Academics' });
+        const FacilitiesFeedbacks = await feedbackModel.find({ ...combinedQueryObject, category: 'Facilities' });
+        const CampusLifeFeedbacks = await feedbackModel.find({ ...combinedQueryObject, category: 'Campus Life' });
+        const PersonalFeedbacks = await feedbackModel.find({ ...combinedQueryObject, category: 'Personal' });
 
         // Fetch paginated feedbacks
-        const feeds = await feedbackModel.find(queryObject)
+        const feeds = await feedbackModel.find(combinedQueryObject)
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(itemsPerPage);
-        const feedsTotal = await feedbackModel.countDocuments(queryObject); // Total feedback count
+        const feedsTotal = await feedbackModel.countDocuments(combinedQueryObject); // Total feedback count
         const numOfPages = Math.ceil(feedsTotal / itemsPerPage);
+
+        console.log('Fetched Feedbacks:', feeds);
+        console.log('Total Feedbacks:', feedsTotal);
 
         res.status(200).json({
             feedsTotal,
             numOfPages,
             currentPage: pageNumber,
             feeds,
+            normalFeedbacks,
+            personalFeedbacks,
             normalFeedbacksCount,
             personalFeedbacksCount,
-            AcademicsFeedbacks,
-            FacilitiesFeedbacks,
-            CampusLifeFeedbacks,
-            PersonalFeedbacks
+            // AcademicsFeedbacks,
+            // FacilitiesFeedbacks,
+            // CampusLifeFeedbacks,
+            // PersonalFeedbacks,
         });
 
     } catch (error) {
+        console.error('Error fetching feedbacks:', error.message);
         res.status(500).json({ message: "Failed to fetch the feedback", error: error.message });
     }
-}
+};
+
+
 
 
 

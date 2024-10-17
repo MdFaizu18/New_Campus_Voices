@@ -24,6 +24,7 @@ import StarRatingsReview from './pages/admin/StarRatingsReview';
 import AdminLogin from './pages/AdminLoginPage';
 import AddFeaturePage from './pages/admin/AddFeaturePage';
 import NetworkAwareComponent from './pages/network/NetworkAwareComponent';
+import ITSupportContact from './pages/ITSupportContact';
 import { NetworkStatusProvider } from './pages/network/NetworkStatusProvider';
 
 // importing actions 
@@ -35,7 +36,6 @@ import { loader as userProfileLoader } from './pages/student/UserProfile';
 import { loader as stdDashboardLoader } from './pages/student/MainDashBoardStudent';
 import { loader as adminDashboardLoader } from './pages/admin/AdminDashboardPage'
 import { loader as feedLoader } from './pages/student/FeedPage';
-import ITSupportContact from './pages/ITSupportContact';
 
 
 // Define the router using createBrowserRouter
@@ -69,7 +69,6 @@ const router = createBrowserRouter([
       {
         path: '/redirect/forget-password',
         element: <ForgetPassword />,
-        // action: forgetPasswordAction, 
       },
       {
         path: 'reset-password/:token',

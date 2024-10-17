@@ -202,7 +202,18 @@ export default function AdminFeatureManagement() {
                 )}
               </div>
             </div>
+          {/* Quick Tips */}
+          <div className="mt-12 bg-indigo-100 rounded-lg p-6 shadow-inner">
+            <h3 className="text-lg font-semibold text-indigo-800 mb-4">Quick Tips</h3>
+            <ul className="list-disc list-inside text-indigo-700 space-y-2">
+              <li>You can add up to 3 features</li>
+              <li>Use emojis to make your features stand out</li>
+              <li>Keep descriptions concise and informative</li>
+            </ul>
           </div>
+          </div>
+
+
         </main>
       </div>
     </div>

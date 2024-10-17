@@ -30,7 +30,7 @@ export default function ITSupportContact() {
                                 <Phone className="h-6 w-6 text-indigo-600 mt-1 mr-4" />
                                 <div>
                                     <h3 className="text-lg font-medium text-gray-900">Phone Support</h3>
-                                    <p className="mt-1 text-gray-600">Call us at: <a href="tel:+1234567890" className="text-indigo-600 hover:underline">+1 (234) 567-890</a></p>
+                                    <p className="mt-1 text-gray-600">Call us at: <a href="tel:+1234567890" className="text-indigo-600 hover:underline">+91 9345266656</a></p>
                                     <p className="mt-1 text-sm text-gray-500">Available 24/7 for urgent issues</p>
                                 </div>
                             </div>
@@ -38,7 +38,7 @@ export default function ITSupportContact() {
                                 <Mail className="h-6 w-6 text-indigo-600 mt-1 mr-4" />
                                 <div>
                                     <h3 className="text-lg font-medium text-gray-900">Email Support</h3>
-                                    <p className="mt-1 text-gray-600">Email us at: <a href="mailto:itsupport@campusvoices.edu" className="text-indigo-600 hover:underline">itsupport@campusvoices.edu</a></p>
+                                    <p className="mt-1 text-gray-600">Email us at: <a href="mailto:itsupport@campusvoices.edu" className="text-indigo-600 hover:underline">mohammedfaizulla18@gmail.com</a></p>
                                     <p className="mt-1 text-sm text-gray-500">We aim to respond within 24 hours</p>
                                 </div>
                             </div>
