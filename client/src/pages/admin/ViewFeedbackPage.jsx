@@ -5,6 +5,7 @@ import AdminSidebar from '../../components/res/AdminSidebar'
 import customFetch from '../../utils/CustomFetch'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom';
+import AdminNoFeedback from '../../components/res/AdminNoFeedback'
 
 
 const ImagePreviewModal = ({ isOpen, onClose, imageSrc, name }) => {
@@ -266,7 +267,7 @@ export default function EnhancedFeedbackReview() {
                             </button>
                             <div className="relative">
                                 <button className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center">
-                                    <span className="text-sm font-medium text-white">AD</span>
+                                    <span className="text-sm font-medium text-white">HOD</span>
                                 </button>
                             </div>
                         </div>
@@ -373,21 +374,35 @@ export default function EnhancedFeedbackReview() {
                         </div>
 
                         {/* Feedback List */}
+                        {/* Feedback List */}
                         <div className="space-y-4">
                             <AnimatePresence>
-                                {filteredFeedbacks.map(feedback => (
+                                {filteredFeedbacks.length > 0 ? (
+                                    filteredFeedbacks.map(feedback => (
+                                        <motion.div
+                                            key={feedback.id}
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -20 }}
+                                            transition={{ duration: 0.2 }}
+                                        >
+                                            <FeedbackCard feedback={feedback} isPersonalView={isPersonalView} />
+                                        </motion.div>
+                                    ))
+                                ) : (
                                     <motion.div
-                                        key={feedback.id}
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: -20 }}
                                         transition={{ duration: 0.2 }}
+                                        className="text-center text-gray-500"
                                     >
-                                        <FeedbackCard feedback={feedback} isPersonalView={isPersonalView} />
+                                       <AdminNoFeedback/>
                                     </motion.div>
-                                ))}
+                                )}
                             </AnimatePresence>
                         </div>
+
                     </div>
                 </div>
             </div>

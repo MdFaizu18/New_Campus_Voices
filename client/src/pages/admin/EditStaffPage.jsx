@@ -8,7 +8,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 
 
-
 export default function EnhancedAddStaffPage() {
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -30,15 +29,15 @@ export default function EnhancedAddStaffPage() {
     useEffect(() => {
         const fetchFeedbacks = async () => {
             try {
-                const data = await customFetch.get(`/dashboard-head/staff/${ id }`);
+                const data = await customFetch.get(`/dashboard-head/staff/${id}`);
                 setFirstName(data.data.staff.firstName) // Set the fetched feedbacks
-                setSecondName(data.data.staff.secondName) // Set the fetched feedbacks
+                setLastName(data.data.staff.lastName) // Set the fetched feedbacks
                 setDepartment(data.data.staff.department) // Set the fetched feedbacks
                 setStaffCode(data.data.staff.staffCode) // Set the fetched feedbacks
-                setFirstName(data.data.staff.firstName) // Set the fetched feedbacks
-                setFirstName(data.data.staff.firstName) // Set the fetched feedbacks
-                setFirstName(data.data.staff.firstName) // Set the fetched feedbacks
-                setFirstName(data.data.staff.firstName) // Set the fetched feedbacks
+                setEmail(data.data.staff.email) // Set the fetched feedbacks
+                setPhoneNumber(data.data.staff.phoneNumber) // Set the fetched feedbacks
+                setDepartmentCode(data.data.staff.departmentCode) // Set the fetched feedbacks
+                setExperience(data.data.staff.experience) // Set the fetched feedbacks
             } catch (error) {
                 if (error.response && error.response.status === 403) {
                     toast.error("Please Login !!");
@@ -54,6 +53,7 @@ export default function EnhancedAddStaffPage() {
     }, [navigate]); // Dependency array includes navigat
 
     console.log(firstName);
+    console.log(experience);
 
     // Function to submit employee data
     const handleEmployeeSubmit = async (e) => {
@@ -75,7 +75,7 @@ export default function EnhancedAddStaffPage() {
             const data = Object.fromEntries(formData);
 
             // Submit feedback via customFetch
-            await customFetch.post('/dashboard-head/staff', data);
+            await customFetch.patch(`/dashboard-head/staff/${id}`, data);
             toast.success("Employee added successfully");
 
             // Clear form fields after submission

@@ -76,18 +76,23 @@ export default function ReviewStaff() {
     // to delete a staff member, you can add a function like this: 
     const handleDelete = async (id) => {
         try {
+            const confirmed = window.confirm('Are you sure you want to delete this staff member?');
+            if (!confirmed) return; // If the user clicks "Cancel", exit the function
+
             // Make an API call to delete the staff member by their ID
-            await customFetch.delete(`dashboard-head/staff/${ id }`);
+            await customFetch.delete(`dashboard-head/staff/${id}`);
 
             // Update the state to remove the deleted staff from the UI
             setStaffs(filteredStaff.filter((staff) => staff.id !== id));
-
             toast.success('Staff member deleted successfully!');
+            // Reload the page to reflect the changes
+            window.location.reload();
         } catch (error) {
             console.error('Error deleting staff member:', error);
             toast.error('Failed to delete the staff member. Please try again.');
         }
     };
+
 
 
     return (

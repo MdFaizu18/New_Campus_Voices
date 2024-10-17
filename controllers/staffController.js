@@ -1,20 +1,42 @@
 import { StatusCodes } from "http-status-codes";
 import staffModel from "../models/staffModel.js";
 
-export const getAllStaffs = async (req, res) => {
-    const { search } = req.query;
 
-    const queryObject = {};
-    if (search) {
-        queryObject.$or = [
-            { firstName: { $regex: search, $options: 'i' } },
-            { lastName: { $regex: search, $options: 'i' } },
-        ];
+
+export const getAllStaffs = async (req, res) => {
+    try {
+        // Determine the department filter based on user role
+        let departmentFilter = {};
+        if (req.user.role === 'cseAdmin') {
+            departmentFilter.department = 'CSE';
+        } else if (req.user.role === 'eceAdmin') {
+            departmentFilter.department = 'ECE';
+        } else if (req.user.role === 'mechAdmin') {
+            departmentFilter.department = 'MECH';
+        } else if (req.user.role === 'eeeAdmin') {
+            departmentFilter.department = 'EEE';
+        } else if (req.user.role === 'aimlAdmin') {
+            departmentFilter.department = 'AIML';
+        } else if (req.user.role === 'itAdmin') {
+            departmentFilter.department = 'IT';
+        }
+
+        // Create the search query object, combining search and department filter
+        const queryObject = { ...departmentFilter };
+
+
+        // Fetch staff based on the combined query object
+        const allStaff = await staffModel.find(queryObject);
+        const TotalNoStaffs = await staffModel.countDocuments(queryObject);
+
+        // Respond with the filtered staff list
+        res.status(200).json({ TotalNoStaffs, staffs: allStaff });
+    } catch (error) {
+        console.error('Error fetching staff members:', error.message);
+        res.status(500).json({ message: "Failed to fetch the staff members", error: error.message });
     }
-    const allStaff = await staffModel.find(queryObject);
-    const TotalNoStaffs = await staffModel.countDocuments(queryObject);
-    res.status(200).json({ TotalNoStaffs, staffs: allStaff, });
 };
+
 
 export const createStaff = async (req, res) => {
     const staff = await staffModel.create(req.body);

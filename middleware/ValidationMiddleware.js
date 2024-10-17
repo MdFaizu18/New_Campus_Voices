@@ -4,6 +4,7 @@ import { DEP_STATUS, USER_GENDER, YEAR_STATUS } from '../utils/constant.js';
 import mongoose from 'mongoose';
 import { param } from 'express-validator';
 import userModel from '../models/userModel.js';
+import staffModel from "../models/staffModel.js";
 
 // to validate the main validation middleware using this syntax 
 const withValidationErrors = (validateValues) => {
@@ -117,10 +118,23 @@ export const validateSatffInput = withValidationErrors([
     body("phoneNumber").notEmpty().withMessage("Phone Number Must Required"),
     body("department").notEmpty().withMessage("Department is required"),
     body("departmentCode").notEmpty().withMessage("Department Code is required"),
-    body("staffCode").notEmpty().withMessage("staffCode  is required"),
+    body("staffCode")
+        .notEmpty()
+        .withMessage("Staff Code is required")
+        .custom(async (value) => {
+            // Check if the staff code already exists in the database
+            const existingStaff = await staffModel.findOne({ staffCode: value });
+            if (existingStaff) {
+                // If a staff with the same code is found, throw an error
+                throw new Error("Staff code already exists. Please use a unique code.");
+            }
+            // If no staff with the same code is found, the validation will proceed
+            return true;
+        }),
     body("experience").notEmpty().withMessage("Experiences is required"),
     body("jobPosition").notEmpty().withMessage("Job Position  is required"),
 ]);
+
 
 //*--------------- to  validate thhe input of Rating form-------------
 
