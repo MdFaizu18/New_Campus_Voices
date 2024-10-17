@@ -68,18 +68,32 @@ export default function ReviewStaff() {
         (staff.email?.toLowerCase() || '').includes(searchTerm.toLowerCase())
     );
 
+    const handleEditClick = (id) => {
+        navigate(`/admin-dashboard/review-staff/${ id }`);
+    };
+
+
     // to delete a staff member, you can add a function like this: 
     const handleDelete = async (id) => {
         try {
-            await customFetch.delete(`/dashboard-head/staff/${id}`);
-            const updatedStaffs = staffs.filter((staff) => staff.id !== id);
-            setStaffs(updatedStaffs);
-            toast.success('Staff member deleted successfully');
+            const confirmed = window.confirm('Are you sure you want to delete this staff member?');
+            if (!confirmed) return; // If the user clicks "Cancel", exit the function
+
+            // Make an API call to delete the staff member by their ID
+            await customFetch.delete(`dashboard-head/staff/${id}`);
+
+            // Update the state to remove the deleted staff from the UI
+            setStaffs(filteredStaff.filter((staff) => staff.id !== id));
+            toast.success('Staff member deleted successfully!');
+            // Reload the page to reflect the changes
+            window.location.reload();
         } catch (error) {
-            console.error('Error deleting staff:', error);
-            toast.error('An error occurred while deleting the staff member. Please try again.');
+            console.error('Error deleting staff member:', error);
+            toast.error('Failed to delete the staff member. Please try again.');
         }
-    }
+    };
+
+
 
     return (
         <div className="flex h-screen bg-gray-100">
@@ -138,7 +152,7 @@ export default function ReviewStaff() {
                                             </th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Staff Id</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department Id</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dept Id</th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mobile No</th>
                                             <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -147,8 +161,9 @@ export default function ReviewStaff() {
                                     <tbody className="bg-white divide-y divide-gray-200">
                                         {filteredStaff.map((staff) => (
                                             <tr key={staff.id}>
-                                                {/* <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{staff.id}</td> */}
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{staff.firstName} {staff.lastName}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {staff.firstName} {staff.lastName}
+                                                </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{staff.department}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{staff.jobPosition}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{staff.staffCode}</td>
@@ -156,10 +171,16 @@ export default function ReviewStaff() {
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{staff.email}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{staff.phoneNumber}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                    <button className="text-indigo-600 hover:text-indigo-900 mr-2">
+                                                    <button
+                                                        className="text-indigo-600 hover:text-indigo-900 mr-2"
+                                                        onClick={() => handleEditClick(staff._id)}
+                                                    >
                                                         <Edit className="h-4 w-4" />
                                                     </button>
-                                                    <button className="text-red-600 hover:text-red-900" onClick={handleDelete(staff._id)}>
+                                                    <button
+                                                        className="text-red-600 hover:text-red-900"
+                                                        onClick={() => handleDelete(staff._id)}
+                                                    >
                                                         <Trash2 className="h-4 w-4" />
                                                     </button>
                                                 </td>

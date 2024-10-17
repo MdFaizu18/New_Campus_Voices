@@ -23,9 +23,9 @@ export const USER_GENDER = {
     FEMALE: 'Female',
 
 };
-export const JOB_POSTION = {
-    HOD: "HOD",
-    ASSISTANT_HOD: "AssistandHOD",
-    ASSISTANT_PROFESSOR: "AssistantProfessor",
-    LAB_ASSISTANT: "LabAssistant",
-};
+// export const JOB_POSTION = {
+//     HOD: "HOD",
+//     ASSISTANT_HOD: "AssistandHOD",
+//     ASSISTANT_PROFESSOR: "AssistantProfessor",
+//     LAB_ASSISTANT: "LabAssistant",
+// };

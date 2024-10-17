@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { JOB_POSTION } from "../utils/constant.js";
 
 const staffSchema = new mongoose.Schema({
     firstName: String,
@@ -10,10 +9,7 @@ const staffSchema = new mongoose.Schema({
     staffCode: String,
     email: String,
     phoneNumber: String,
-    jobPosition: {
-        type: String,
-        enum: Object.values(JOB_POSTION),
-        default: JOB_POSTION.ASSISTANT_PROFESSOR,
-    },
+    jobPosition: String,
+    profileImage: String
 });
 export default mongoose.model("Staff", staffSchema);

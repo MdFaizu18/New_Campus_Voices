@@ -18,6 +18,7 @@ import AddStaffPage from './pages/admin/AddStaffPage';
 import HomeOutlet from './pages/HomeOutlet';
 import ErrorPage from './pages/ErrorPage';
 import ReviewStaff from './pages/admin/ReviewStaff';
+import EditStaffPage from './pages/admin/EditStaffPage';
 import ForgetPassword from './pages/ForgetPassword';
 import ResetPassword from './pages/ResetPassword';
 import StarRatingsReview from './pages/admin/StarRatingsReview';
@@ -35,7 +36,7 @@ import { action as registerAction } from './pages/RegisterPage';
 import { loader as userProfileLoader } from './pages/student/UserProfile';
 import { loader as stdDashboardLoader } from './pages/student/MainDashBoardStudent';
 import { loader as adminDashboardLoader } from './pages/admin/AdminDashboardPage'
-import { loader as feedLoader } from './pages/student/FeedPage';
+// import { loader as feedLoader } from './pages/student/FeedPage';
 
 
 // Define the router using createBrowserRouter
@@ -95,7 +96,7 @@ const router = createBrowserRouter([
       {
         path: 'feeds',
         element: <FeedPage />,
-        loader: feedLoader
+        // loader: feedLoader
       },
       {
         path: 'user-profile',
@@ -136,6 +137,10 @@ const router = createBrowserRouter([
       {
         path: 'review-staff',
         element: <ReviewStaff />,
+      },
+      {
+        path: 'review-staff/:id',
+        element: <EditStaffPage />,
       },
       {
         path: 'star-ratings',

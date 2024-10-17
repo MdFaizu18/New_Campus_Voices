@@ -29,7 +29,7 @@ const Sidebar = () => {
                 await customFetch.get("/auth/logout");
                 toast.success("Logout Successful");
                 Cookies.remove('tokens', { path: '/' }); // Specify the same path as when the cookie was set
-                navigate("/");
+                navigate("/login-admin");
             } catch (error) {
                 toast.error(error?.response?.data?.msg);
             } finally {

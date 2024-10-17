@@ -1,21 +1,16 @@
-
 import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import AdminSidebar from '../../components/res/AdminSidebar'
-import { UserPlus, AlertCircle, Award,Check, Bell, Menu, ChevronRight } from 'lucide-react'
+import { UserPlus, AlertCircle, Check, Bell, Menu, ChevronRight } from 'lucide-react'
 import { toast } from 'react-toastify';
 import customFetch from '../../utils/CustomFetch';
 import { useNavigate, useParams } from 'react-router-dom';
 
 
 
-
 export default function EnhancedAddStaffPage() {
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [categories, setCategories] = useState([]);
-    const [newQuotient, setNewQuotient] = useState('');
-
     // Form state variables for employee information
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -27,6 +22,38 @@ export default function EnhancedAddStaffPage() {
     const [department, setDepartment] = useState('');
     const [jobPosition, setJobPosition] = useState('');
 
+    const navigate = useNavigate();
+    const { id } = useParams();
+
+
+    useEffect(() => {
+        const fetchFeedbacks = async () => {
+            try {
+                const data = await customFetch.get(`/dashboard-head/staff/${id}`);
+                setFirstName(data.data.staff.firstName) // Set the fetched feedbacks
+                setLastName(data.data.staff.lastName) // Set the fetched feedbacks
+                setDepartment(data.data.staff.department) // Set the fetched feedbacks
+                setStaffCode(data.data.staff.staffCode) // Set the fetched feedbacks
+                setEmail(data.data.staff.email) // Set the fetched feedbacks
+                setPhoneNumber(data.data.staff.phoneNumber) // Set the fetched feedbacks
+                setDepartmentCode(data.data.staff.departmentCode) // Set the fetched feedbacks
+                setExperience(data.data.staff.experience) // Set the fetched feedbacks
+            } catch (error) {
+                if (error.response && error.response.status === 403) {
+                    toast.error("Please Login !!");
+                    navigate('/login-admin'); // Redirect to login-admin
+                } else {
+                    toast.error("An error occurred. Please try again.");
+                    navigate('/'); // Redirect to home
+                }
+            }
+        };
+
+        fetchFeedbacks(); // Call the fetch function
+    }, [navigate]); // Dependency array includes navigat
+
+    console.log(firstName);
+    console.log(experience);
 
     // Function to submit employee data
     const handleEmployeeSubmit = async (e) => {
@@ -48,7 +75,7 @@ export default function EnhancedAddStaffPage() {
             const data = Object.fromEntries(formData);
 
             // Submit feedback via customFetch
-            await customFetch.post('/dashboard-head/staff', data);
+            await customFetch.patch(`/dashboard-head/staff/${id}`, data);
             toast.success("Employee added successfully");
 
             // Clear form fields after submission
@@ -67,14 +94,6 @@ export default function EnhancedAddStaffPage() {
             toast.error(error?.response?.data?.msg || "Failed to add employee");
         }
     };
-
-    const handleComplimentSubmit =() => {}
-
-    const handleCategoryToggle = (category) => {
-        setCategories(prev =>
-            prev.includes(category) ? prev.filter(c => c !== category) : [...prev, category]
-        )
-    }
 
 
     return (
@@ -259,114 +278,12 @@ export default function EnhancedAddStaffPage() {
 
                                 {/* Submit button */}
                                 <motion.button type="submit" style={{ display: 'flex', justifyContent: "center", alignItems: 'center' }} className="md:col-span-2 w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-3 px-4 rounded-md" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                    Add Employee
+                                    Update Employee
                                     <ChevronRight className="ml-2 w-5 h-5" />
                                 </motion.button>
                             </form>
                         </motion.div>
 
-
-                        {/* to give compliement request  */}
-                        <motion.div
-                            className="bg-white rounded-lg shadow-2xl p-8"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5, delay: 0.2 }}
-                        >
-                            <motion.h2
-                                className="text-3xl font-bold mb-6 text-center text-purple-600 flex items-center justify-center"
-                                initial={{ scale: 0.9 }}
-                                animate={{ scale: 1 }}
-                                transition={{ duration: 0.3 }}
-                            >
-                                <Award className="mr-2 text-pink-500" size={32} />
-                                Compliment Request
-                            </motion.h2>
-                            <form onSubmit={handleComplimentSubmit} className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                                        <label htmlFor="complimentName" className="block text-sm font-medium text-gray-700 mb-1">
-                                            Name
-                                        </label>
-                                        <input
-                                            type="text"
-                                            id="complimentName"
-                                            name="complimentName"
-                                            className="w-full px-4 py-2 border-2 border-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
-                                            required
-                                        />
-                                    </motion.div>
-                                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                                        <label htmlFor="complimentStaffCode" className="block text-sm font-medium text-gray-700 mb-1">
-                                            Staff Code
-                                        </label>
-                                        <input
-                                            type="text"
-                                            id="complimentStaffCode"
-                                            name="complimentStaffCode"
-                                            className="w-full px-4 py-2 border-2 border-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
-                                            required
-                                        />
-                                    </motion.div>
-                                </div>
-                                <div>
-                                    <p className="block text-lg font-medium text-gray-700 mb-3">Compliment Categories</p>
-                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                        {['Teaching', 'Collaborative', 'Syllabus Completion', 'Communication', 'Out of Knowledge'].map((category) => (
-                                            <motion.button
-                                                key={category}
-                                                type="button"
-                                                onClick={() => handleCategoryToggle(category)}
-                                                className={`flex items-center justify-center p-3 rounded-lg transition-all duration-300 ${categories.includes(category)
-                                                    ? 'bg-green-600 text-white'
-                                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                                    }`}
-                                                whileHover={{ scale: 1.05 }}
-                                                whileTap={{ scale: 0.95 }}
-                                            >
-                                                <span className="text-sm">{category}</span>
-                                            </motion.button>
-                                        ))}
-                                    </div>
-                                </div>
-                                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                                    <label htmlFor="newQuotient" className="block text-sm font-medium text-gray-700 mb-1">
-                                        New Quotient
-                                    </label>
-                                    <div className="flex">
-                                        <input
-                                            type="text"
-                                            id="newQuotient"
-                                            name="newQuotient"
-                                            value={newQuotient}
-                                            onChange={(e) => setNewQuotient(e.target.value)}
-                                            className="flex-grow px-4 py-2 border-2 border-purple-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => setNewQuotient(`prev => ${prev} +`)}
-                                            className="bg-purple-600 text-white px-4 py-2 rounded-r-md hover:bg-purple-700 transition-colors"
-                                            aria-label="Add to quotient"
-                                        >
-                                            +
-                                        </button>
-                                    </div>
-                                </motion.div>
-                                <motion.button
-                                    type="submit"
-                                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-3 px-4 rounded-md hover:from-purple-700 hover:to-pink-700 transition-all duration-300 flex items-center justify-center"
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                >
-                                    Submit Compliment
-                                    <ChevronRight className="ml-2 w-5 h-5" />
-                                </motion.button>
-                            </form>
-                        </motion.div>
-
-
-
-                          {/* Admin instructions */}                                    
                         <motion.div
                             className="bg-white rounded-lg shadow-2xl p-8"
                             initial={{ opacity: 0, y: 20 }}
@@ -403,17 +320,3 @@ export default function EnhancedAddStaffPage() {
         </div>
     )
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,46 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, Lock, FileText, Calendar, Clock, Filter, Trash2 } from 'lucide-react';
 import Navbar from '../../components/res/Navbar';
-import { redirect, useLoaderData } from 'react-router-dom';
 import customFetch from '../../utils/CustomFetch';
 import { toast } from 'react-toastify';
-import NoImg from '../../assets/images/userprofile/pngImg03.jpg'
-
-export const loader = async () => {
-    try {
-        const data = await customFetch.get('/dashboard-student/feedbacks');
-        return data;
-    } catch (error) {
-        if (error.response && error.response.status === 403) {
-            // throw new Error('Access Denied! You are not authorized to access this page.');
-            toast.error("Please Login !!")
-            return redirect('/')
-        } else {
-            toast.error("Error occurred while fetching data");
-            return redirect('/')
-        }
-    }
-};
+import NoImg from '../../assets/images/userprofile/pngImg03.jpg';
+import LoadingPage from '../../components/res/LoadingPage';
 
 const FeedbackCard = ({ feedback, onDelete }) => {
     const { message, createdAt, _id, messageType } = feedback;
 
     const handleDelete = async () => {
-        console.log("Deleting feedback with ID:", _id); // Log the ID for debugging
         try {
-            await customFetch.delete(`/dashboard-student/feedbacks/${_id}`);
-            onDelete(_id); // Call onDelete prop to remove feedback from the list
+            await customFetch.delete(`/dashboard-student/feedbacks/${ _id }`);
+            onDelete(_id);
             toast.success("Feedback deleted successfully!");
         } catch (error) {
-            console.error("Error deleting feedback:", error); // Log the error for debugging
+            console.error("Error deleting feedback:", error);
             toast.error("Error occurred while deleting feedback");
         }
     };
 
-    // Format date and time from createdAt
-    const date = new Date(createdAt).toLocaleDateString('en-GB'); // Format as DD/MM/YYYY
-    const time = new Date(createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); // Format as HH:MM
+    const date = new Date(createdAt).toLocaleDateString('en-GB');
+    const time = new Date(createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     return (
         <motion.div
@@ -57,10 +39,7 @@ const FeedbackCard = ({ feedback, onDelete }) => {
                         <span className="ml-2 bg-[#7F39E9] text-white text-xs font-bold px-2 rounded">Personal</span>
                     )}
                 </div>
-                <button
-                    onClick={handleDelete}
-                    className="text-red-500 hover:text-red-700"
-                >
+                <button onClick={handleDelete} className="text-red-500 hover:text-red-700">
                     <Trash2 className="w-5 h-5" />
                 </button>
             </div>
@@ -90,22 +69,44 @@ const CountCard = ({ icon: Icon, count, label }) => (
 );
 
 export default function FeedPage() {
-    const data = useLoaderData();
-    const feeds = data.data.feeds;
-    const normalFeedbacksCount = data.data.normalFeedbacksCount;
-    const personalFeedbacksCount = data.data.personalFeedbacksCount;
-    const feedsTotal = data.data.feedsTotal;
-
     const [filter, setFilter] = useState('All');
-    const [feedbackList, setFeedbackList] = useState(feeds); // Manage state for feedback list
+    const [feedbackList, setFeedbackList] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [data, setData] = useState(null);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const result = await customFetch.get('/dashboard-student/feedbacks');
+                setData(result.data);
+                setFeedbackList(result.data.feeds);
+                setLoading(false);
+            } catch (error) {
+                if (error.response && error.response.status === 403) {
+                    toast.error("Please Login !!");
+                    window.location.href = '/';
+                } else {
+                    toast.error("Error occurred while fetching data");
+                    window.location.href = '/';
+                }
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    if (loading) {
+        return (
+            <LoadingPage />
+        );
+    }
+
+    const { feeds, normalFeedbacksCount, personalFeedbacksCount, feedsTotal } = data;
 
     const categories = ['All', 'Academics', 'Facilities', 'Campus Life', 'Personal'];
-
-    // Assuming 'filter' is the selected category
     const filteredFeedback = filter === 'All'
         ? feedbackList
         : feedbackList.filter(f => f.category === filter);
-
 
     const handleDeleteFeedback = (id) => {
         setFeedbackList(prev => prev.filter(feedback => feedback._id !== id));
@@ -113,7 +114,6 @@ export default function FeedPage() {
 
     return (
         <div>
-            {/* Navbar */}
             <Navbar />
 
             <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
@@ -128,7 +128,7 @@ export default function FeedPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                         <CountCard icon={MessageCircle} count={normalFeedbacksCount} label="Normal Feeds" />
-                        <CountCard icon={Lock} count={personalFeedbacksCount} label="Secret  Feeds" />
+                        <CountCard icon={Lock} count={personalFeedbacksCount} label="Secret Feeds" />
                         <CountCard icon={FileText} count={feedsTotal} label="Total Feeds" />
                     </div>
 
@@ -172,8 +172,7 @@ export default function FeedPage() {
                             <img
                                 src={NoImg}
                                 alt="No feedback"
-        
-                                className=" min-h-[200px] min-w-[350px] h-[400px] w-[600px] mx-auto mb-4"
+                                className="min-h-[200px] min-w-[350px] h-[400px] w-[600px] mx-auto mb-4"
                             />
                             <h2 className="text-2xl font-bold text-gray-700">No Feedbacks to Display</h2>
                         </motion.div>
